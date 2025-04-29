@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"Asistente de IA Universal"
+   },
+   "rephraseTitle":{
+      "message":"Reformular con IA"
+   },
+   "spinnerAlt":{
+      "message":"Procesando..."
+   },
+   "apiKeyLabel":{
+      "message":"Clave API de OpenAI:"
+   },
+   "saveButton":{
+      "message":"Guardar"
+   },
+   "defaultPrompt":{
+      "message":"Haz esto más educado y claro"
+   },
+   "noApiKey":{
+      "message":"¡Por favor, introduce tu clave API primero!"
+   },
+   "systemPrompt":{
+      "message":"Eres un asistente que ayuda a reformular el texto del usuario."
+   },
+   "saved":{
+      "message":"¡Clave guardada!"
+   },
+   "apiKeyTitle":{
+      "message":"Clave API"
+   },
+   "apiHint":{
+      "message":"Obtén tu clave en"
+   },
+   "styleOriginal":{
+      "message":"En el estilo original"
+   },
+   "stylePolite":{
+      "message":"De manera cortés"
+   },
+   "styleConcise":{
+      "message":"Concisamente"
+   },
+   "styleFormal":{
+      "message":"De manera formal"
+   },
+   "styleFriendly":{
+      "message":"Amigable"
+   },
+   "styleTitle":{
+      "message":"Estilo"
+   },
+   "customStyleLabel":{
+      "message":"Estilo personalizado"
+   },
+   "styleCustom":{
+      "message":"Estilo personalizado"
+   },
+   "style":{
+      "message":"Estilo"
+   },
+   "hintGetKeyAt":{
+      "message":"Consigue tu clave en"
+   },
+   "saveStyleButton":{
+      "message":"Aplicar estilo"
+   },
+   "saveApiButton":{
+      "message":"Guardar clave API"
+   },
+   "editApiButton":{
+      "message":"Editar clave API"
+   },
+   "apiKeySaved":{
+      "message":"Clave API guardada ✅"
+   },
+   "applyStyleSaved":{
+      "message":"Estilo aplicado ✅"
+   },
+   "noApiKeyFound":{
+      "message":"¡Clave API no encontrada!"
+   },
+   "rephraseButtonTitle":{
+      "message":"Reformular"
+   },
+   "systemPromptFull":{
+      "message":"Eres un asistente que reformula el texto del usuario manteniendo el idioma original. Nunca traduzcas ni cambies el idioma bajo ninguna circunstancia."
+   }
+}

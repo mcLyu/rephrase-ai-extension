@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"Универсальный AI-помощник"
+   },
+   "rephraseTitle":{
+      "message":"Переформулировать с AI"
+   },
+   "spinnerAlt":{
+      "message":"Обработка..."
+   },
+   "apiKeyLabel":{
+      "message":"API-ключ OpenAI:"
+   },
+   "saveButton":{
+      "message":"Сохранить"
+   },
+   "defaultPrompt":{
+      "message":"Сделай это более вежливо и понятно"
+   },
+   "noApiKey":{
+      "message":"Пожалуйста, сначала введите API-ключ!"
+   },
+   "systemPrompt":{
+      "message":"Ты помощник, который помогает пользователю переформулировать текст."
+   },
+   "saved":{
+      "message":"Ключ сохранён!"
+   },
+   "apiKeyTitle":{
+      "message":"API-ключ"
+   },
+   "apiHint":{
+      "message":"Получить ключ можно на"
+   },
+   "styleOriginal":{
+      "message":"В стиле оригинала"
+   },
+   "stylePolite":{
+      "message":"Вежливо"
+   },
+   "styleConcise":{
+      "message":"Кратко"
+   },
+   "styleFormal":{
+      "message":"Формально"
+   },
+   "styleFriendly":{
+      "message":"Дружелюбно"
+   },
+   "styleTitle":{
+      "message":"Стиль"
+   },
+   "customStyleLabel":{
+      "message":"Свой стиль"
+   },
+   "styleCustom":{
+      "message":"Свой стиль"
+   },
+   "style":{
+      "message":"Стиль"
+   },
+   "hintGetKeyAt":{
+      "message":"Получите ключ на"
+   },
+   "saveStyleButton":{
+      "message":"Применить стиль"
+   },
+   "saveApiButton":{
+      "message":"Сохранить API-ключ"
+   },
+   "editApiButton":{
+      "message":"Изменить API-ключ"
+   },
+   "apiKeySaved":{
+      "message":"API-ключ сохранён ✅"
+   },
+   "applyStyleSaved":{
+      "message":"Стиль применён ✅"
+   },
+   "noApiKeyFound":{
+      "message":"API-ключ не найден!"
+   },
+   "rephraseButtonTitle":{
+      "message":"Переформулировать"
+   },
+   "systemPromptFull":{
+      "message":"Ты — помощник, который переформулирует текст пользователя, сохраняя оригинальный язык. Никогда не меняй язык текста и не переводи ни при каких условиях."
+   }
+}

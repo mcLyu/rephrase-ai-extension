@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"Universal AI Assistant"
+   },
+   "rephraseTitle":{
+      "message":"Rephrase with AI"
+   },
+   "spinnerAlt":{
+      "message":"Processing..."
+   },
+   "apiKeyLabel":{
+      "message":"OpenAI API Key:"
+   },
+   "saveButton":{
+      "message":"Save"
+   },
+   "defaultPrompt":{
+      "message":"Make this more polite and clear"
+   },
+   "noApiKey":{
+      "message":"Please enter your API key first!"
+   },
+   "systemPrompt":{
+      "message":"You are an assistant that helps users rephrase their text."
+   },
+   "saved":{
+      "message":"Key saved!"
+   },
+   "apiKeyTitle":{
+      "message":"API Key"
+   },
+   "apiHint":{
+      "message":"Get your key at"
+   },
+   "styleOriginal":{
+      "message":"In the original style"
+   },
+   "stylePolite":{
+      "message":"Politely"
+   },
+   "styleConcise":{
+      "message":"Concisely"
+   },
+   "styleFormal":{
+      "message":"Formally"
+   },
+   "styleFriendly":{
+      "message":"Friendly"
+   },
+   "styleTitle":{
+      "message":"Style"
+   },
+   "customStyleLabel":{
+      "message":"Custom style"
+   },
+   "styleCustom":{
+      "message":"Custom style"
+   },
+   "style":{
+      "message":"Style"
+   },
+   "hintGetKeyAt":{
+      "message":"Get your key at"
+   },
+   "saveStyleButton":{
+      "message":"Apply Style"
+   },
+   "saveApiButton":{
+      "message":"Save API Key"
+   },
+   "editApiButton":{
+      "message":"Edit API Key"
+   },
+   "apiKeySaved":{
+      "message":"API Key saved ✅"
+   },
+   "applyStyleSaved":{
+      "message":"Style applied ✅"
+   },
+   "noApiKeyFound":{
+      "message":"API Key not found!"
+   },
+   "rephraseButtonTitle":{
+      "message":"Rephrase"
+   },
+   "systemPromptFull":{
+      "message":"You are an assistant that rephrases user text while keeping the original language. Never translate or change the language under any circumstances."
+   }
+}
