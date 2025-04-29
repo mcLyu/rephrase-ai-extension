@@ -21,10 +21,10 @@ RePhrase AI is a lightweight and privacy-friendly Chrome extension that helps yo
 
 ## 🖼 Screenshots
 
-<!-- ![Screen1](screens/en-screen1-640x400.png) -->
-<!-- ![Screen2](screens/en-screen2-640x400.png) -->
-<!-- ![Screen3](screens/en-screen3-640x400.png) -->
-<!-- ![Screen3](screens/en-screen4-640x400.png) -->
+![Screen1](screens/en-screen1-640x400.png)
+![Screen2](screens/en-screen2-640x400.png)
+![Screen3](screens/en-screen3-640x400.png)
+![Screen3](screens/en-screen4-640x400.png)
 
 ## 🔐 Privacy
 
