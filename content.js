@@ -1,6 +1,17 @@
-// === content.js для OpenRouter.ai с улучшенным промптом ===
+function insertTextAndTriggerInput(el, text) {
+  el.focus();
+  document.execCommand('selectAll', false, null);
+  document.execCommand('insertText', false, text);
+  if (el.innerText !== text) el.innerText = text;
+  ['input', 'change'].forEach(type =>
+    el.dispatchEvent(new Event(type, { bubbles: true }))
+  );
+}
 
-const DEFAULT_API_KEY = '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';
+const shimmerStyle = document.createElement('style');
+shimmerStyle.textContent = `\n/* === Вставляется в DOM один раз === */\n.gpt-loading {\n  position: relative;\n  color: transparent !important;\n  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);\n  background-size: 200% 100%;\n  animation: shimmer 1.4s infinite linear;\n  border-radius: 4px;\n}\n\n@keyframes shimmer {\n  0% {\n    background-position: -200% 0;\n  }\n  100% {\n    background-position: 200% 0;\n  }\n}\n`;
+document.head.appendChild(shimmerStyle);
+
 const HTTP_REFERER = 'chrome://extensions/?id=fldiehcdfjlgpgjppapcpgiopmkdpggd';
 
 function isVisible(el) {
@@ -33,17 +44,18 @@ function injectButtonIntoInput(input) {
   }
 
   btn.addEventListener('click', () => {
-    let userText, selection = '', fullText;
+    let userText = '', selection = '', fullText = '', range = null;
 
     if (input.isContentEditable) {
       const sel = window.getSelection();
       if (sel && sel.rangeCount > 0 && sel.toString().trim()) {
+        range = sel.getRangeAt(0).cloneRange();
         selection = sel.toString();
-        fullText = input.innerText;
         userText = selection.trim();
       } else {
         userText = input.innerText.trim();
       }
+      fullText = input.innerText;
     } else {
       const start = input.selectionStart;
       const end = input.selectionEnd;
@@ -59,70 +71,134 @@ function injectButtonIntoInput(input) {
     if (!userText) return;
 
     chrome.storage.local.get(['apiKey', 'rephraseStyle', 'customStyle', 'userLocale'], (result) => {
-      const apiKey = result.apiKey || DEFAULT_API_KEY;
-      const rephraseStyle = result.rephraseStyle || 'original';
-      const customStyle = result.customStyle;
-      const locale = result.userLocale || 'en';
-
-      const getText = key => chrome.i18n.getMessage(`${key}_${locale}`) || chrome.i18n.getMessage(key);
-
-      let styleLocalized;
-      switch (rephraseStyle) {
-        case 'polite': styleLocalized = getText('stylePolite'); break;
-        case 'concise': styleLocalized = getText('styleConcise'); break;
-        case 'formal': styleLocalized = getText('styleFormal'); break;
-        case 'friendly': styleLocalized = getText('styleFriendly'); break;
-        case 'custom': styleLocalized = customStyle || getText('styleCustom'); break;
-        case 'original':
-        default:
-          styleLocalized = getText('styleOriginal'); break;
+      const apiKey = result.apiKey;
+      if (!apiKey) {
+        alert('API key not found. Please configure it.');
+        return;
       }
 
-		const prompts = {
-		  en: (style, text) => `Rephrase the following text in "${style}" style. Do not translate the language or change its meaning. Do not add any comments, explanations, or alternatives. Only return the rephrased text:\n\n${text}`,
-		  ru: (style, text) => `Перефразируй следующий текст, изменяя только стиль на "${style}". Запрещено изменять язык текста или его смысл. Также запрещено добавлять вступления, пояснения, варианты или комментарии. Ответ должен содержать только изменённый текст на том же языке:\n\n${text}`,
-		  es: (style, text) => `Reformula el siguiente texto usando el estilo "${style}". No traduzcas el idioma ni cambies el significado. No agregues comentarios, explicaciones ni alternativas. Devuelve solo el texto reformulado:\n\n${text}`
-		};
+      const rephraseStyle = result.rephraseStyle || 'original';
+      const locale = result.userLocale || 'en';
 
-      const prompt = (prompts[locale] || prompts['en'])(styleLocalized, userText);
-
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': HTTP_REFERER
-        },
-        body: JSON.stringify({
-          model: 'deepseek/deepseek-chat-v3-0324:free',
-          messages: [
-            {
-              role: 'user',
-              content: prompt
-            }
-          ]
-        })
+      const prompts = {
+        en: (styleLocalized, text) => [
+          {
+            role: "system",
+            content: `You are an assistant that rephrases text in the "${styleLocalized}" style in English, without changing its language or meaning. Return exactly one rephrased version of the input. Do not provide alternatives, suggestions, lists, or multiple options. Do not explain anything or use formatting like markdown.`
+          },
+          {
+            role: "user",
+            content: text
+          }
+        ],
+        ru: (styleLocalized, text) => [
+          {
+            role: "system",
+            content: `Ты — помощник, который перефразирует текст в стиле "${styleLocalized}" на русском языке. Нельзя менять язык или смысл текста. Верни строго одну перефразированную версию. Не предлагай альтернатив, синонимов, списков или нескольких вариантов. Не давай пояснений и не используй форматирование (например, markdown).`
+          },
+          {
+            role: "user",
+            content: text
+          }
+        ],
+        es: (styleLocalized, text) => [
+          {
+            role: "system",
+            content: `Eres un asistente que reformula texto con el estilo "${styleLocalized}" en español, sin cambiar el idioma ni el significado. Devuelve exactamente una sola versión reformulada. No ofrezcas alternativas, sinónimos, listas ni múltiples opciones. No expliques nada ni uses formato como markdown.`
+          },
+          {
+            role: "user",
+            content: text
+          }
+        ]
       };
 
-      fetch('https://openrouter.ai/api/v1/chat/completions', requestOptions)
-        .then(res => res.json())
-        .then(data => {
-          const newText = data.choices?.[0]?.message?.content;
+      function detectLanguage(text) {
+        if (/[Ѐ-ӿ]/.test(text)) return 'ru';
+        if (/\b(el|la|los|las|de|y|que|un|una|para)\b/i.test(text)) return 'es';
+        if (/^[a-zA-Z\s.,!?'"-]+$/.test(text)) return 'en';
+        return null;
+      }
+
+      const detectedLang = detectLanguage(userText);
+      const promptLocale = detectedLang || locale;
+
+      const styleTranslations = {
+        original: { en: "original", ru: "оригинальный", es: "original" },
+        formal: { en: "formal", ru: "формальный", es: "formal" },
+        friendly: { en: "friendly", ru: "дружелюбный", es: "amistoso" },
+        concise: { en: "concise", ru: "краткий", es: "conciso" },
+        polite: { en: "polite", ru: "вежливый", es: "educado" },
+        custom: { en: "custom", ru: "пользовательский", es: "personalizado" }
+      };
+
+      const styleLocalized = rephraseStyle === 'custom'
+        ? result.customStyle
+        : styleTranslations[rephraseStyle]?.[promptLocale] || rephraseStyle;
+
+      const messages = (prompts[promptLocale] || prompts['en'])(styleLocalized, userText);
+
+      // Show shimmer
+      input.classList.add('gpt-loading');
+      if (!input.isContentEditable) input.setAttribute('readonly', true);
+
+      const modelByLocale = {
+        en: 'mistralai/mistral-7b-instruct:free',
+        ru: 'deepseek/deepseek-chat-v3-0324:free',
+        es: 'deepseek/deepseek-chat-v3-0324:free'
+      };
+
+      const selectedModel = modelByLocale[promptLocale] || 'deepseek/deepseek-chat-v3-0324:free';
+      const fallbackModel = 'mistralai/mistral-7b-instruct:free';
+
+      function callOpenRouter(apiKey, model, messages, timeoutMs = 15000) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+        return fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+            'HTTP-Referer': HTTP_REFERER
+          },
+          body: JSON.stringify({ model, messages }),
+          signal: controller.signal
+        })
+        .then(res => res.json().then(data => ({ status: res.status, body: data })))
+        .finally(() => clearTimeout(timeout));
+      }
+
+      callOpenRouter(apiKey, selectedModel, messages)
+        .then(({ status, body }) => {
+          if (!body || !body.choices?.[0]?.message?.content) throw new Error('No valid response');
+          return body.choices[0].message.content.trimStart();
+        })
+        .catch(err => {
+          console.warn('Primary model failed or timed out, retrying with fallback model...', err);
+          return callOpenRouter(apiKey, fallbackModel, messages)
+            .then(({ status, body }) => {
+              if (!body || !body.choices?.[0]?.message?.content) throw new Error('Fallback also failed');
+              return body.choices[0].message.content.trimStart();
+            });
+        })
+        .then(newText => {
+          input.classList.remove('gpt-loading');
+          if (!input.isContentEditable) input.removeAttribute('readonly');
           if (!newText) return;
 
           if (input.isContentEditable) {
             input.focus();
-            if (selection) {
-              document.execCommand('insertText', false, newText);
+            if (range) {
+              range.deleteContents();
+              range.insertNode(document.createTextNode(newText));
             } else {
-              document.execCommand('selectAll', false, null);
-              document.execCommand('delete', false, null);
-              document.execCommand('insertText', false, newText);
+              insertTextAndTriggerInput(input, newText);
             }
           } else {
-            if (selection) {
-              const start = input.selectionStart;
-              const end = input.selectionEnd;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            if (start !== end) {
               input.value = fullText.slice(0, start) + newText + fullText.slice(end);
             } else {
               input.value = newText;
@@ -130,8 +206,10 @@ function injectButtonIntoInput(input) {
           }
         })
         .catch(err => {
-          console.error('Ошибка обращения к OpenRouter API:', err);
-          alert('Ошибка обращения к AI-сервису. Возможно, исчерпан лимит или неверный ключ.');
+          input.classList.remove('gpt-loading');
+          if (!input.isContentEditable) input.removeAttribute('readonly');
+          console.error('Final fetch error:', err);
+          alert('Failed to contact AI service.');
         });
     });
   });
@@ -158,6 +236,5 @@ const observer = new MutationObserver(() => {
     });
   }
 });
-
 observer.observe(document.body, { childList: true, subtree: true });
 document.addEventListener('focusin', scanAndInject);
