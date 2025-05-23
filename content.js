@@ -9,7 +9,21 @@ function insertTextAndTriggerInput(el, text) {
 }
 
 const shimmerStyle = document.createElement('style');
-shimmerStyle.textContent = `\n/* === Вставляется в DOM один раз === */\n.gpt-loading {\n  position: relative;\n  color: transparent !important;\n  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);\n  background-size: 200% 100%;\n  animation: shimmer 1.4s infinite linear;\n  border-radius: 4px;\n}\n\n@keyframes shimmer {\n  0% {\n    background-position: -200% 0;\n  }\n  100% {\n    background-position: 200% 0;\n  }\n}\n`;
+shimmerStyle.textContent = `
+/* === Вставляется в DOM один раз === */
+.gpt-loading {
+  position: relative;
+  color: transparent !important;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+`;
 document.head.appendChild(shimmerStyle);
 
 const HTTP_REFERER = 'chrome://extensions/?id=fldiehcdfjlgpgjppapcpgiopmkdpggd';
@@ -149,18 +163,16 @@ function injectButtonIntoInput(input) {
       };
 
       const selectedModel = modelByLocale[promptLocale] || 'deepseek/deepseek-chat-v3-0324:free';
-      const fallbackModel = 'mistralai/mistral-7b-instruct:free';
 
       function callOpenRouter(apiKey, model, messages, timeoutMs = 15000) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-        return fetch('https://openrouter.ai/api/v1/chat/completions', {
+        return fetch('https://openai-proxy.wolf1601.workers.dev', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': HTTP_REFERER
+            'X-Client-Key': apiKey
           },
           body: JSON.stringify({ model, messages }),
           signal: controller.signal
@@ -173,14 +185,6 @@ function injectButtonIntoInput(input) {
         .then(({ status, body }) => {
           if (!body || !body.choices?.[0]?.message?.content) throw new Error('No valid response');
           return body.choices[0].message.content.trimStart();
-        })
-        .catch(err => {
-          console.warn('Primary model failed or timed out, retrying with fallback model...', err);
-          return callOpenRouter(apiKey, fallbackModel, messages)
-            .then(({ status, body }) => {
-              if (!body || !body.choices?.[0]?.message?.content) throw new Error('Fallback also failed');
-              return body.choices[0].message.content.trimStart();
-            });
         })
         .then(newText => {
           input.classList.remove('gpt-loading');
@@ -208,7 +212,7 @@ function injectButtonIntoInput(input) {
         .catch(err => {
           input.classList.remove('gpt-loading');
           if (!input.isContentEditable) input.removeAttribute('readonly');
-          console.error('Final fetch error:', err);
+          console.error('Fetch error:', err);
           alert('Failed to contact AI service.');
         });
     });
