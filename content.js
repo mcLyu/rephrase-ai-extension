@@ -312,13 +312,123 @@ function handleRephraseClick(input) {
           role: "user",
           content: text
         }
+      ],
+      zh: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `你是一个助手，使用"${styleLocalized}"风格用中文改写文本，不改变其语言或含义。只返回一个改写版本。不要提供替代方案、建议、列表或多个选项。不要解释任何内容或使用markdown等格式。`
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ],
+      fr: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `Tu es un assistant qui reformule le texte dans un style "${styleLocalized}" en français, sans changer sa langue ou son sens. Retourne exactement une seule version reformulée. Ne propose pas d'alternatives, de suggestions, de listes ou d'options multiples. N'explique rien et n'utilise pas de formatage comme markdown.`
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ],
+      de: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `Du bist ein Assistent, der Text im "${styleLocalized}"-Stil auf Deutsch umformuliert, ohne die Sprache oder Bedeutung zu ändern. Gib genau eine umformulierte Version zurück. Biete keine Alternativen, Vorschläge, Listen oder mehrere Optionen an. Erkläre nichts und verwende keine Formatierung wie Markdown.`
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ],
+      pt: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `Você é um assistente que reformula texto no estilo "${styleLocalized}" em português, sem alterar seu idioma ou significado. Retorne exatamente uma versão reformulada. Não forneça alternativas, sugestões, listas ou múltiplas opções. Não explique nada nem use formatação como markdown.`
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ],
+      ja: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `あなたは「${styleLocalized}」スタイルで日本語のテキストを言い換えるアシスタントです。言語や意味を変えずに、正確に1つの言い換えバージョンを返してください。代替案、提案、リスト、複数のオプションを提供しないでください。説明やマークダウンなどの書式設定を使用しないでください。`
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ],
+      ar: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `أنت مساعد يعيد صياغة النص بأسلوب "${styleLocalized}" باللغة العربية، دون تغيير لغته أو معناه. أعد نسخة واحدة معاد صياغتها بالضبط. لا تقدم بدائل أو اقتراحات أو قوائم أو خيارات متعددة. لا تشرح أي شيء ولا تستخدم تنسيقًا مثل markdown.`
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ],
+      hi: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `आप एक सहायक हैं जो "${styleLocalized}" शैली में हिंदी में पाठ को दोबारा लिखते हैं, इसकी भाषा या अर्थ को बदले बिना। बिल्कुल एक दोबारा लिखा हुआ संस्करण लौटाएं। विकल्प, सुझाव, सूचियां या कई विकल्प प्रदान न करें। कुछ भी समझाएं नहीं और markdown जैसे स्वरूपण का उपयोग न करें।`
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ],
+      it: (styleLocalized, text) => [
+        {
+          role: "system",
+          content: `Sei un assistente che riformula il testo nello stile "${styleLocalized}" in italiano, senza cambiarne la lingua o il significato. Restituisci esattamente una versione riformulata. Non fornire alternative, suggerimenti, elenchi o opzioni multiple. Non spiegare nulla e non usare formattazioni come markdown.`
+        },
+        {
+          role: "user",
+          content: text
+        }
       ]
     };
 
     function detectLanguage(text) {
+      // Cyrillic script (Russian/Ukrainian)
       if (/[Ѐ-ӿ]/.test(text)) return 'ru';
-      if (/\b(el|la|los|las|de|y|que|un|una|para)\b/i.test(text)) return 'es';
+
+      // Chinese characters
+      if (/[\u4e00-\u9fff]/.test(text)) return 'zh';
+
+      // Japanese (Hiragana, Katakana, Kanji)
+      if (/[\u3040-\u309f\u30a0-\u30ff]/.test(text)) return 'ja';
+
+      // Arabic script
+      if (/[\u0600-\u06ff\u0750-\u077f]/.test(text)) return 'ar';
+
+      // Devanagari script (Hindi)
+      if (/[\u0900-\u097f]/.test(text)) return 'hi';
+
+      // Spanish common words
+      if (/\b(el|la|los|las|de|y|que|un|una|para|con|por|es|en)\b/i.test(text)) return 'es';
+
+      // Portuguese specific words (different from Spanish)
+      if (/\b(o|a|os|as|com|não|para|do|da|em|por|um|uma)\b/i.test(text)) return 'pt';
+
+      // French specific words
+      if (/\b(le|la|les|de|et|un|une|pour|dans|avec|ce|est)\b/i.test(text)) return 'fr';
+
+      // German specific words
+      if (/\b(der|die|das|und|ist|für|mit|auf|nicht|von|dem)\b/i.test(text)) return 'de';
+
+      // Italian specific words
+      if (/\b(il|lo|la|i|gli|le|di|e|che|per|un|una|con)\b/i.test(text)) return 'it';
+
+      // English (fallback for Latin script)
       if (/^[a-zA-Z\s.,!?'"-]+$/.test(text)) return 'en';
+
       return null;
     }
 
@@ -326,12 +436,36 @@ function handleRephraseClick(input) {
     const promptLocale = detectedLang || locale;
 
     const styleTranslations = {
-      original: { en: "original", ru: "оригинальный", es: "original" },
-      formal: { en: "formal", ru: "формальный", es: "formal" },
-      friendly: { en: "friendly", ru: "дружелюбный", es: "amistoso" },
-      concise: { en: "concise", ru: "краткий", es: "conciso" },
-      polite: { en: "polite", ru: "вежливый", es: "educado" },
-      custom: { en: "custom", ru: "пользовательский", es: "personalizado" }
+      original: {
+        en: "original", ru: "оригинальный", es: "original",
+        zh: "原始", fr: "original", de: "original",
+        pt: "original", ja: "オリジナル", ar: "أصلي", hi: "मूल", it: "originale"
+      },
+      formal: {
+        en: "formal", ru: "формальный", es: "formal",
+        zh: "正式", fr: "formel", de: "formell",
+        pt: "formal", ja: "フォーマル", ar: "رسمي", hi: "औपचारिक", it: "formale"
+      },
+      friendly: {
+        en: "friendly", ru: "дружелюбный", es: "amistoso",
+        zh: "友好", fr: "amical", de: "freundlich",
+        pt: "amigável", ja: "フレンドリー", ar: "ودي", hi: "मैत्रीपूर्ण", it: "amichevole"
+      },
+      concise: {
+        en: "concise", ru: "краткий", es: "conciso",
+        zh: "简洁", fr: "concis", de: "prägnant",
+        pt: "conciso", ja: "簡潔", ar: "موجز", hi: "संक्षिप्त", it: "conciso"
+      },
+      polite: {
+        en: "polite", ru: "вежливый", es: "educado",
+        zh: "礼貌", fr: "poli", de: "höflich",
+        pt: "educado", ja: "丁寧", ar: "مؤدب", hi: "विनम्र", it: "educato"
+      },
+      custom: {
+        en: "custom", ru: "пользовательский", es: "personalizado",
+        zh: "自定义", fr: "personnalisé", de: "benutzerdefiniert",
+        pt: "personalizado", ja: "カスタム", ar: "مخصص", hi: "कस्टम", it: "personalizzato"
+      }
     };
 
     const styleLocalized = rephraseStyle === 'custom'
