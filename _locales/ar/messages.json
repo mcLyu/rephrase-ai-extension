@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"مساعد الذكاء الاصطناعي الشامل"
+   },
+   "rephraseTitle":{
+      "message":"إعادة صياغة بالذكاء الاصطناعي"
+   },
+   "spinnerAlt":{
+      "message":"جارٍ المعالجة..."
+   },
+   "apiKeyLabel":{
+      "message":"مفتاح OpenAI API:"
+   },
+   "saveButton":{
+      "message":"حفظ"
+   },
+   "defaultPrompt":{
+      "message":"اجعل هذا أكثر أدباً ووضوحاً"
+   },
+   "noApiKey":{
+      "message":"الرجاء إدخال مفتاح API الخاص بك أولاً!"
+   },
+   "systemPrompt":{
+      "message":"أنت مساعد يساعد المستخدمين على إعادة صياغة نصوصهم."
+   },
+   "saved":{
+      "message":"تم حفظ المفتاح!"
+   },
+   "apiKeyTitle":{
+      "message":"مفتاح API"
+   },
+   "apiHint":{
+      "message":"احصل على مفتاحك من"
+   },
+   "styleOriginal":{
+      "message":"بالأسلوب الأصلي"
+   },
+   "stylePolite":{
+      "message":"بأدب"
+   },
+   "styleConcise":{
+      "message":"بإيجاز"
+   },
+   "styleFormal":{
+      "message":"رسمي"
+   },
+   "styleFriendly":{
+      "message":"ودي"
+   },
+   "styleTitle":{
+      "message":"الأسلوب"
+   },
+   "customStyleLabel":{
+      "message":"أسلوب مخصص"
+   },
+   "styleCustom":{
+      "message":"أسلوب مخصص"
+   },
+   "style":{
+      "message":"الأسلوب"
+   },
+   "hintGetKeyAt":{
+      "message":"احصل على مفتاحك من"
+   },
+   "saveStyleButton":{
+      "message":"تطبيق الأسلوب"
+   },
+   "saveApiButton":{
+      "message":"حفظ مفتاح API"
+   },
+   "editApiButton":{
+      "message":"تعديل مفتاح API"
+   },
+   "apiKeySaved":{
+      "message":"تم حفظ مفتاح API ✅"
+   },
+   "applyStyleSaved":{
+      "message":"تم تطبيق الأسلوب ✅"
+   },
+   "noApiKeyFound":{
+      "message":"لم يتم العثور على مفتاح API!"
+   },
+   "rephraseButtonTitle":{
+      "message":"إعادة صياغة"
+   },
+   "systemPromptFull":{
+      "message":"أنت مساعد يعيد صياغة نص المستخدم مع الحفاظ على اللغة الأصلية. لا تترجم أو تغير اللغة تحت أي ظرف من الظروف."
+   }
+}

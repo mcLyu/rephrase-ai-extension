@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"यूनिवर्सल एआई सहायक"
+   },
+   "rephraseTitle":{
+      "message":"एआई से दोबारा लिखें"
+   },
+   "spinnerAlt":{
+      "message":"प्रोसेसिंग..."
+   },
+   "apiKeyLabel":{
+      "message":"OpenAI API कुंजी:"
+   },
+   "saveButton":{
+      "message":"सहेजें"
+   },
+   "defaultPrompt":{
+      "message":"इसे अधिक विनम्र और स्पष्ट बनाएं"
+   },
+   "noApiKey":{
+      "message":"कृपया पहले अपनी API कुंजी दर्ज करें!"
+   },
+   "systemPrompt":{
+      "message":"आप एक सहायक हैं जो उपयोगकर्ताओं को उनके पाठ को दोबारा लिखने में मदद करते हैं।"
+   },
+   "saved":{
+      "message":"कुंजी सहेजी गई!"
+   },
+   "apiKeyTitle":{
+      "message":"API कुंजी"
+   },
+   "apiHint":{
+      "message":"अपनी कुंजी यहां प्राप्त करें"
+   },
+   "styleOriginal":{
+      "message":"मूल शैली में"
+   },
+   "stylePolite":{
+      "message":"विनम्रता से"
+   },
+   "styleConcise":{
+      "message":"संक्षेप में"
+   },
+   "styleFormal":{
+      "message":"औपचारिक"
+   },
+   "styleFriendly":{
+      "message":"मैत्रीपूर्ण"
+   },
+   "styleTitle":{
+      "message":"शैली"
+   },
+   "customStyleLabel":{
+      "message":"कस्टम शैली"
+   },
+   "styleCustom":{
+      "message":"कस्टम शैली"
+   },
+   "style":{
+      "message":"शैली"
+   },
+   "hintGetKeyAt":{
+      "message":"अपनी कुंजी यहां प्राप्त करें"
+   },
+   "saveStyleButton":{
+      "message":"शैली लागू करें"
+   },
+   "saveApiButton":{
+      "message":"API कुंजी सहेजें"
+   },
+   "editApiButton":{
+      "message":"API कुंजी संपादित करें"
+   },
+   "apiKeySaved":{
+      "message":"API कुंजी सहेजी गई ✅"
+   },
+   "applyStyleSaved":{
+      "message":"शैली लागू की गई ✅"
+   },
+   "noApiKeyFound":{
+      "message":"API कुंजी नहीं मिली!"
+   },
+   "rephraseButtonTitle":{
+      "message":"दोबारा लिखें"
+   },
+   "systemPromptFull":{
+      "message":"आप एक सहायक हैं जो उपयोगकर्ता के पाठ को मूल भाषा बनाए रखते हुए दोबारा लिखते हैं। किसी भी परिस्थिति में अनुवाद न करें या भाषा न बदलें।"
+   }
+}

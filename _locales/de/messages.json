@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"Universeller KI-Assistent"
+   },
+   "rephraseTitle":{
+      "message":"Mit KI umformulieren"
+   },
+   "spinnerAlt":{
+      "message":"Verarbeitung läuft..."
+   },
+   "apiKeyLabel":{
+      "message":"OpenAI API-Schlüssel:"
+   },
+   "saveButton":{
+      "message":"Speichern"
+   },
+   "defaultPrompt":{
+      "message":"Machen Sie dies höflicher und klarer"
+   },
+   "noApiKey":{
+      "message":"Bitte geben Sie zuerst Ihren API-Schlüssel ein!"
+   },
+   "systemPrompt":{
+      "message":"Sie sind ein Assistent, der Benutzern hilft, ihren Text umzuformulieren."
+   },
+   "saved":{
+      "message":"Schlüssel gespeichert!"
+   },
+   "apiKeyTitle":{
+      "message":"API-Schlüssel"
+   },
+   "apiHint":{
+      "message":"Holen Sie sich Ihren Schlüssel unter"
+   },
+   "styleOriginal":{
+      "message":"Im ursprünglichen Stil"
+   },
+   "stylePolite":{
+      "message":"Höflich"
+   },
+   "styleConcise":{
+      "message":"Prägnant"
+   },
+   "styleFormal":{
+      "message":"Formell"
+   },
+   "styleFriendly":{
+      "message":"Freundlich"
+   },
+   "styleTitle":{
+      "message":"Stil"
+   },
+   "customStyleLabel":{
+      "message":"Benutzerdefinierter Stil"
+   },
+   "styleCustom":{
+      "message":"Benutzerdefinierter Stil"
+   },
+   "style":{
+      "message":"Stil"
+   },
+   "hintGetKeyAt":{
+      "message":"Holen Sie sich Ihren Schlüssel unter"
+   },
+   "saveStyleButton":{
+      "message":"Stil anwenden"
+   },
+   "saveApiButton":{
+      "message":"API-Schlüssel speichern"
+   },
+   "editApiButton":{
+      "message":"API-Schlüssel bearbeiten"
+   },
+   "apiKeySaved":{
+      "message":"API-Schlüssel gespeichert ✅"
+   },
+   "applyStyleSaved":{
+      "message":"Stil angewendet ✅"
+   },
+   "noApiKeyFound":{
+      "message":"API-Schlüssel nicht gefunden!"
+   },
+   "rephraseButtonTitle":{
+      "message":"Umformulieren"
+   },
+   "systemPromptFull":{
+      "message":"Sie sind ein Assistent, der Benutzertexte umformuliert und dabei die Originalsprache beibehält. Übersetzen oder ändern Sie unter keinen Umständen die Sprache."
+   }
+}

@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"Assistente IA Universale"
+   },
+   "rephraseTitle":{
+      "message":"Riformula con l'IA"
+   },
+   "spinnerAlt":{
+      "message":"Elaborazione in corso..."
+   },
+   "apiKeyLabel":{
+      "message":"Chiave API OpenAI:"
+   },
+   "saveButton":{
+      "message":"Salva"
+   },
+   "defaultPrompt":{
+      "message":"Rendi questo più educato e chiaro"
+   },
+   "noApiKey":{
+      "message":"Per favore, inserisci prima la tua chiave API!"
+   },
+   "systemPrompt":{
+      "message":"Sei un assistente che aiuta gli utenti a riformulare i loro testi."
+   },
+   "saved":{
+      "message":"Chiave salvata!"
+   },
+   "apiKeyTitle":{
+      "message":"Chiave API"
+   },
+   "apiHint":{
+      "message":"Ottieni la tua chiave su"
+   },
+   "styleOriginal":{
+      "message":"Nello stile originale"
+   },
+   "stylePolite":{
+      "message":"Educatamente"
+   },
+   "styleConcise":{
+      "message":"In modo conciso"
+   },
+   "styleFormal":{
+      "message":"Formalmente"
+   },
+   "styleFriendly":{
+      "message":"Amichevole"
+   },
+   "styleTitle":{
+      "message":"Stile"
+   },
+   "customStyleLabel":{
+      "message":"Stile personalizzato"
+   },
+   "styleCustom":{
+      "message":"Stile personalizzato"
+   },
+   "style":{
+      "message":"Stile"
+   },
+   "hintGetKeyAt":{
+      "message":"Ottieni la tua chiave su"
+   },
+   "saveStyleButton":{
+      "message":"Applica stile"
+   },
+   "saveApiButton":{
+      "message":"Salva chiave API"
+   },
+   "editApiButton":{
+      "message":"Modifica chiave API"
+   },
+   "apiKeySaved":{
+      "message":"Chiave API salvata ✅"
+   },
+   "applyStyleSaved":{
+      "message":"Stile applicato ✅"
+   },
+   "noApiKeyFound":{
+      "message":"Chiave API non trovata!"
+   },
+   "rephraseButtonTitle":{
+      "message":"Riformula"
+   },
+   "systemPromptFull":{
+      "message":"Sei un assistente che riformula il testo dell'utente mantenendo la lingua originale. Non tradurre mai o cambiare la lingua in nessuna circostanza."
+   }
+}

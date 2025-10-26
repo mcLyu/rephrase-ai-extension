@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"Assistant IA Universel"
+   },
+   "rephraseTitle":{
+      "message":"Reformuler avec l'IA"
+   },
+   "spinnerAlt":{
+      "message":"Traitement en cours..."
+   },
+   "apiKeyLabel":{
+      "message":"Clé API OpenAI :"
+   },
+   "saveButton":{
+      "message":"Enregistrer"
+   },
+   "defaultPrompt":{
+      "message":"Rendre ceci plus poli et clair"
+   },
+   "noApiKey":{
+      "message":"Veuillez d'abord entrer votre clé API !"
+   },
+   "systemPrompt":{
+      "message":"Vous êtes un assistant qui aide les utilisateurs à reformuler leur texte."
+   },
+   "saved":{
+      "message":"Clé enregistrée !"
+   },
+   "apiKeyTitle":{
+      "message":"Clé API"
+   },
+   "apiHint":{
+      "message":"Obtenez votre clé sur"
+   },
+   "styleOriginal":{
+      "message":"Dans le style original"
+   },
+   "stylePolite":{
+      "message":"Poliment"
+   },
+   "styleConcise":{
+      "message":"De façon concise"
+   },
+   "styleFormal":{
+      "message":"Formellement"
+   },
+   "styleFriendly":{
+      "message":"Amical"
+   },
+   "styleTitle":{
+      "message":"Style"
+   },
+   "customStyleLabel":{
+      "message":"Style personnalisé"
+   },
+   "styleCustom":{
+      "message":"Style personnalisé"
+   },
+   "style":{
+      "message":"Style"
+   },
+   "hintGetKeyAt":{
+      "message":"Obtenez votre clé sur"
+   },
+   "saveStyleButton":{
+      "message":"Appliquer le style"
+   },
+   "saveApiButton":{
+      "message":"Enregistrer la clé API"
+   },
+   "editApiButton":{
+      "message":"Modifier la clé API"
+   },
+   "apiKeySaved":{
+      "message":"Clé API enregistrée ✅"
+   },
+   "applyStyleSaved":{
+      "message":"Style appliqué ✅"
+   },
+   "noApiKeyFound":{
+      "message":"Clé API introuvable !"
+   },
+   "rephraseButtonTitle":{
+      "message":"Reformuler"
+   },
+   "systemPromptFull":{
+      "message":"Vous êtes un assistant qui reformule le texte de l'utilisateur tout en conservant la langue d'origine. Ne jamais traduire ou changer de langue en aucune circonstance."
+   }
+}

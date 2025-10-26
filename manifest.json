@@ -38,6 +38,7 @@
             "<all_urls>"
          ],
          "js":[
+            "franc-standalone.js",
             "content.js"
          ]
       }

@@ -1,0 +1,89 @@
+{
+   "extName":{
+      "message":"Assistente de IA Universal"
+   },
+   "rephraseTitle":{
+      "message":"Reformular com IA"
+   },
+   "spinnerAlt":{
+      "message":"Processando..."
+   },
+   "apiKeyLabel":{
+      "message":"Chave de API OpenAI:"
+   },
+   "saveButton":{
+      "message":"Salvar"
+   },
+   "defaultPrompt":{
+      "message":"Torne isso mais educado e claro"
+   },
+   "noApiKey":{
+      "message":"Por favor, insira sua chave de API primeiro!"
+   },
+   "systemPrompt":{
+      "message":"Você é um assistente que ajuda os usuários a reformular seus textos."
+   },
+   "saved":{
+      "message":"Chave salva!"
+   },
+   "apiKeyTitle":{
+      "message":"Chave de API"
+   },
+   "apiHint":{
+      "message":"Obtenha sua chave em"
+   },
+   "styleOriginal":{
+      "message":"No estilo original"
+   },
+   "stylePolite":{
+      "message":"Educadamente"
+   },
+   "styleConcise":{
+      "message":"Concisamente"
+   },
+   "styleFormal":{
+      "message":"Formalmente"
+   },
+   "styleFriendly":{
+      "message":"Amigável"
+   },
+   "styleTitle":{
+      "message":"Estilo"
+   },
+   "customStyleLabel":{
+      "message":"Estilo personalizado"
+   },
+   "styleCustom":{
+      "message":"Estilo personalizado"
+   },
+   "style":{
+      "message":"Estilo"
+   },
+   "hintGetKeyAt":{
+      "message":"Obtenha sua chave em"
+   },
+   "saveStyleButton":{
+      "message":"Aplicar estilo"
+   },
+   "saveApiButton":{
+      "message":"Salvar chave de API"
+   },
+   "editApiButton":{
+      "message":"Editar chave de API"
+   },
+   "apiKeySaved":{
+      "message":"Chave de API salva ✅"
+   },
+   "applyStyleSaved":{
+      "message":"Estilo aplicado ✅"
+   },
+   "noApiKeyFound":{
+      "message":"Chave de API não encontrada!"
+   },
+   "rephraseButtonTitle":{
+      "message":"Reformular"
+   },
+   "systemPromptFull":{
+      "message":"Você é um assistente que reformula o texto do usuário mantendo o idioma original. Nunca traduza ou mude o idioma sob nenhuma circunstância."
+   }
+}

@@ -397,45 +397,19 @@ function handleRephraseClick(input) {
     };
 
     function detectLanguage(text) {
-      // Cyrillic script (Russian/Ukrainian)
-      if (/[Ѐ-ӿ]/.test(text)) return 'ru';
+      // Use franc-based detection (loaded from franc-standalone.js)
+      if (typeof window.francDetect === 'function') {
+        return window.francDetect(text);
+      }
 
-      // Chinese characters
+      // Fallback to basic script detection if franc not loaded
+      if (/[\u0400-\u04FF]/.test(text)) return 'ru';
       if (/[\u4e00-\u9fff]/.test(text)) return 'zh';
-
-      // Japanese (Hiragana, Katakana, Kanji)
       if (/[\u3040-\u309f\u30a0-\u30ff]/.test(text)) return 'ja';
-
-      // Arabic script
-      if (/[\u0600-\u06ff\u0750-\u077f]/.test(text)) return 'ar';
-
-      // Devanagari script (Hindi)
+      if (/[\u0600-\u06ff]/.test(text)) return 'ar';
       if (/[\u0900-\u097f]/.test(text)) return 'hi';
 
-      // Portuguese specific - check first (has unique "ão", "nh", "lh")
-      if (/\b(não|também|com|são|ou|mais|até|muito|quando|onde)\b/i.test(text) ||
-          /ão|nh|lh|ç/.test(text)) return 'pt';
-
-      // Italian specific - check before Spanish (has unique articles and verbs)
-      if (/\b(gli|della|dello|nell|sono|hanno|può|così|anche|dove|quando)\b/i.test(text) ||
-          /\b(il|lo)\s/i.test(text)) return 'it';
-
-      // Spanish specific - after Italian check
-      if (/\b(los|las|está|están|pero|como|todo|hay|muy|siempre)\b/i.test(text) ||
-          /¿|¡/.test(text)) return 'es';
-
-      // French specific (unique articles and contractions)
-      if (/\b(le|les|du|au|aux|ce|ces|cette|des|dans|avec|vous|nous)\b/i.test(text) ||
-          /[àâäéèêëïîôùûç]/.test(text)) return 'fr';
-
-      // German specific (capitalized nouns, umlauts, unique words)
-      if (/\b(der|die|das|und|nicht|auch|aber|oder|sein|werden)\b/i.test(text) ||
-          /[äöüß]/.test(text)) return 'de';
-
-      // English (fallback for Latin script)
-      if (/^[a-zA-Z\s.,!?'"-]+$/.test(text)) return 'en';
-
-      return null;
+      return 'en'; // Default fallback
     }
 
     // Use manually selected language if set, otherwise auto-detect
