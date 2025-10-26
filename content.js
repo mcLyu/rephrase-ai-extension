@@ -225,6 +225,7 @@ function handleRephraseClick(input) {
 
   let userText = '', selection = '', fullText = '', range = null;
   let selectionStart = 0, selectionEnd = 0;
+  let hasSelection = false; // Track if user selected specific text
 
   // Extract text based on input type
   if (input.isContentEditable) {
@@ -234,12 +235,15 @@ function handleRephraseClick(input) {
         range = sel.getRangeAt(0).cloneRange();
         selection = sel.toString();
         userText = selection.trim();
+        hasSelection = true;
       } catch (e) {
         console.error('Error cloning range:', e);
         userText = input.innerText.trim();
+        hasSelection = false;
       }
     } else {
       userText = input.innerText.trim();
+      hasSelection = false;
     }
     fullText = input.innerText;
   } else {
@@ -249,8 +253,10 @@ function handleRephraseClick(input) {
     if (selectionStart !== selectionEnd) {
       selection = input.value.substring(selectionStart, selectionEnd);
       userText = selection.trim();
+      hasSelection = true;
     } else {
       userText = input.value.trim();
+      hasSelection = false;
     }
   }
 
@@ -333,13 +339,8 @@ function handleRephraseClick(input) {
       input.setAttribute('readonly', true);
     }
 
-    const modelByLocale = {
-      en: 'google/gemini-2.5-pro-exp-03-25:free', // Upgraded from mistral-7b (1M context, superior performance)
-      ru: 'deepseek/deepseek-chat-v3-0324:free',
-      es: 'deepseek/deepseek-chat-v3-0324:free'
-    };
-
-    const selectedModel = modelByLocale[promptLocale] || 'google/gemini-2.5-pro-exp-03-25:free';
+    // Using google/gemini-2.0-flash-001 - most popular for translation/rephrasing on OpenRouter
+    const selectedModel = 'google/gemini-2.0-flash-001';
 
     // API call with retry logic
     function callOpenRouterWithRetry(apiKey, model, messages, attempt = 0) {
@@ -400,7 +401,8 @@ function handleRephraseClick(input) {
         // Insert rephrased text
         if (input.isContentEditable) {
           input.focus();
-          if (range && document.body.contains(range.startContainer)) {
+          if (hasSelection && range && document.body.contains(range.startContainer)) {
+            // User selected specific text, replace only that selection
             try {
               const sel = window.getSelection();
               sel.removeAllRanges();
@@ -412,14 +414,40 @@ function handleRephraseClick(input) {
               input.textContent = newText;
             }
           } else {
-            insertTextAndTriggerInput(input, newText);
+            // No selection, replace entire content
+            // Use document.execCommand for better compatibility with LinkedIn/complex editors
+            input.focus();
+
+            // Select all content
+            const sel = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(input);
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            // Try modern approach first
+            if (document.execCommand) {
+              document.execCommand('insertText', false, newText);
+            } else {
+              // Fallback for browsers without execCommand
+              range.deleteContents();
+              range.insertNode(document.createTextNode(newText));
+            }
+
+            // Trigger events for framework compatibility (LinkedIn needs these)
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            input.blur();
+            input.focus();
           }
         } else {
-          if (selectionStart !== selectionEnd) {
+          if (hasSelection) {
+            // User selected specific text, replace only that selection
             input.value = fullText.slice(0, selectionStart) + newText + fullText.slice(selectionEnd);
             // Set cursor at end of inserted text
             input.selectionStart = input.selectionEnd = selectionStart + newText.length;
           } else {
+            // No selection, replace entire content
             input.value = newText;
           }
           // Trigger input event for frameworks
