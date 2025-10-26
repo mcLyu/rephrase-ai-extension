@@ -4,10 +4,12 @@
 
 // WeakMap to track input elements and their metadata
 const inputMetadata = new WeakMap();
-// WeakMap to track button references for cleanup
-const buttonReferences = new WeakMap();
+// Map to track button references for cleanup (using Map instead of WeakMap for iteration)
+const buttonReferences = new Map();
 // Map to track active API requests per input (for deduplication)
 const activeRequests = new WeakMap();
+// Set to track all processed inputs for cleanup
+const trackedInputs = new Set();
 
 // Extension state
 let isExtensionEnabled = true;
@@ -162,8 +164,16 @@ function injectButtonIntoInput(input) {
   wrapper.className = 'gpt-button-wrapper';
 
   const btn = document.createElement('img');
-  btn.src = chrome.runtime.getURL('rephrase-icon.png');
-  btn.title = chrome.i18n.getMessage('rephraseButtonTitle');
+
+  // Handle extension context invalidation
+  try {
+    btn.src = chrome.runtime.getURL('rephrase-icon.png');
+    btn.title = chrome.i18n.getMessage('rephraseButtonTitle') || 'Rephrase';
+  } catch (e) {
+    console.error('Extension context invalidated, skipping button injection');
+    return;
+  }
+
   btn.className = 'gpt-rephrase-btn';
   Object.assign(btn.style, {
     width: '20px',
