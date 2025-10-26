@@ -75,11 +75,95 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    .toggle-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 26px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #4a90e2;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+
+    .status-indicator {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .status-indicator.enabled {
+      color: #4a90e2;
+    }
+
+    .status-indicator.disabled {
+      color: #999;
+    }
   </style>
 </head>
 <body>
 
   <div class="section">
+    <div class="toggle-container">
+      <div>
+        <div class="toggle-label" id="toggleLabel"></div>
+        <div class="status-indicator" id="statusIndicator"></div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="extensionToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
     <h2><span id="styleTitle"></span></h2>
     <select id="rephraseStyle"></select>
     <div id="customStyleInputSection" class="hidden">

@@ -10,7 +10,10 @@ const translations = {
     styleConcise: 'Concise',
     styleFormal: 'Formal',
     styleFriendly: 'Friendly',
-    styleCustom: 'Custom'
+    styleCustom: 'Custom',
+    toggleLabel: 'Extension Status',
+    statusEnabled: 'Enabled',
+    statusDisabled: 'Disabled'
   },
   ru: {
     styleTitle: 'Стиль RePhrase AI',
@@ -21,7 +24,10 @@ const translations = {
     styleConcise: 'Краткий',
     styleFormal: 'Формальный',
     styleFriendly: 'Дружелюбный',
-    styleCustom: 'Свой стиль'
+    styleCustom: 'Свой стиль',
+    toggleLabel: 'Статус расширения',
+    statusEnabled: 'Включено',
+    statusDisabled: 'Выключено'
   },
   es: {
     styleTitle: 'Estilo RePhrase AI',
@@ -32,7 +38,10 @@ const translations = {
     styleConcise: 'Conciso',
     styleFormal: 'Formal',
     styleFriendly: 'Amigable',
-    styleCustom: 'Estilo propio'
+    styleCustom: 'Estilo propio',
+    toggleLabel: 'Estado de la extensión',
+    statusEnabled: 'Habilitado',
+    statusDisabled: 'Deshabilitado'
   }
 };
 
@@ -40,6 +49,7 @@ function translateUI() {
   const t = translations[currentLocale];
   document.getElementById('styleTitle').innerText = t.styleTitle;
   document.getElementById('saveStyleBtn').innerText = t.saveStyleButton;
+  document.getElementById('toggleLabel').innerText = t.toggleLabel;
 
   const styleOptions = [
     { value: 'original', key: 'styleOriginal' },
@@ -65,6 +75,18 @@ function translateUI() {
   }
 }
 
+function updateStatusIndicator(isEnabled) {
+  const t = translations[currentLocale];
+  const statusIndicator = document.getElementById('statusIndicator');
+  if (isEnabled) {
+    statusIndicator.innerText = t.statusEnabled;
+    statusIndicator.className = 'status-indicator enabled';
+  } else {
+    statusIndicator.innerText = t.statusDisabled;
+    statusIndicator.className = 'status-indicator disabled';
+  }
+}
+
 function toggleCustomStyleInput(style) {
   const input = document.getElementById('customStyleInputSection');
   if (!input) return;
@@ -72,12 +94,43 @@ function toggleCustomStyleInput(style) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const storage = await chrome.storage.local.get(['rephraseStyle', 'customStyle', 'userLocale']);
+  const storage = await chrome.storage.local.get([
+    'rephraseStyle',
+    'customStyle',
+    'userLocale',
+    'extensionEnabled'
+  ]);
 
   const browserLang = chrome.i18n.getUILanguage().slice(0, 2);
   currentLocale = ['en', 'ru', 'es'].includes(browserLang) ? browserLang : 'en';
 
   translateUI();
+
+  // Load and set extension enabled state (default: true)
+  const isEnabled = storage.extensionEnabled !== false; // Default to enabled
+  const toggleCheckbox = document.getElementById('extensionToggle');
+  toggleCheckbox.checked = isEnabled;
+  updateStatusIndicator(isEnabled);
+
+  // Toggle handler - enable/disable extension
+  toggleCheckbox.addEventListener('change', (e) => {
+    const enabled = e.target.checked;
+    chrome.storage.local.set({ extensionEnabled: enabled }, () => {
+      updateStatusIndicator(enabled);
+
+      // Send message to all tabs to enable/disable the extension
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, {
+            type: 'TOGGLE_EXTENSION',
+            enabled: enabled
+          }).catch(() => {
+            // Ignore errors for tabs that don't have content script
+          });
+        });
+      });
+    });
+  });
 
   if (storage.rephraseStyle) {
     document.getElementById('rephraseStyle').value = storage.rephraseStyle;
