@@ -399,7 +399,8 @@ function handleRephraseClick(input) {
     function detectLanguage(text) {
       // Use franc-based detection (loaded from franc-standalone.js)
       if (typeof window.francDetect === 'function') {
-        return window.francDetect(text);
+        // Pass user locale as hint for short text detection
+        return window.francDetect(text, locale);
       }
 
       // Fallback to basic script detection if franc not loaded
@@ -537,10 +538,28 @@ function handleRephraseClick(input) {
               const sel = window.getSelection();
               sel.removeAllRanges();
               sel.addRange(range);
-              range.deleteContents();
-              range.insertNode(document.createTextNode(newText));
+              // Use execCommand for better compatibility
+              if (document.execCommand) {
+                document.execCommand('insertText', false, newText);
+              } else {
+                // Fallback: delete and insert
+                range.deleteContents();
+                const textNode = document.createTextNode(newText);
+                range.insertNode(textNode);
+
+                // Move cursor to end of inserted text
+                range.setStartAfter(textNode);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }
+
+              // Trigger events
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+              input.dispatchEvent(new Event('change', { bubbles: true }));
             } catch (e) {
               console.error('Error inserting text with range:', e);
+              // Last resort fallback
               input.textContent = newText;
             }
           } else {
