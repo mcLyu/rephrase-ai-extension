@@ -2,9 +2,10 @@ let currentLocale = 'en';
 
 const translations = {
   en: {
+    languageTitle: 'Language',
     styleTitle: 'Style RePhrase AI',
-    saveStyleButton: 'Apply Style',
-    applyStyleSaved: 'Style applied ✅',
+    saveStyleButton: 'Apply Settings',
+    applyStyleSaved: 'Settings applied ✅',
     styleOriginal: 'Original',
     stylePolite: 'Polite',
     styleConcise: 'Concise',
@@ -16,9 +17,10 @@ const translations = {
     statusDisabled: 'Disabled'
   },
   ru: {
+    languageTitle: 'Язык',
     styleTitle: 'Стиль RePhrase AI',
-    saveStyleButton: 'Применить стиль',
-    applyStyleSaved: 'Стиль применён ✅',
+    saveStyleButton: 'Применить настройки',
+    applyStyleSaved: 'Настройки применены ✅',
     styleOriginal: 'Оригинальный',
     stylePolite: 'Вежливый',
     styleConcise: 'Краткий',
@@ -30,9 +32,10 @@ const translations = {
     statusDisabled: 'Выключено'
   },
   es: {
+    languageTitle: 'Idioma',
     styleTitle: 'Estilo RePhrase AI',
-    saveStyleButton: 'Aplicar estilo',
-    applyStyleSaved: 'Estilo aplicado ✅',
+    saveStyleButton: 'Aplicar configuración',
+    applyStyleSaved: 'Configuración aplicada ✅',
     styleOriginal: 'Original',
     stylePolite: 'Cortés',
     styleConcise: 'Conciso',
@@ -47,6 +50,7 @@ const translations = {
 
 function translateUI() {
   const t = translations[currentLocale];
+  document.getElementById('languageTitle').innerText = t.languageTitle;
   document.getElementById('styleTitle').innerText = t.styleTitle;
   document.getElementById('saveStyleBtn').innerText = t.saveStyleButton;
   document.getElementById('toggleLabel').innerText = t.toggleLabel;
@@ -98,6 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'rephraseStyle',
     'customStyle',
     'userLocale',
+    'selectedLanguage',
     'extensionEnabled'
   ]);
 
@@ -132,6 +137,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // Load language selection (default: auto)
+  const languageSelect = document.getElementById('languageSelect');
+  if (storage.selectedLanguage) {
+    languageSelect.value = storage.selectedLanguage;
+  }
+
   if (storage.rephraseStyle) {
     document.getElementById('rephraseStyle').value = storage.rephraseStyle;
     toggleCustomStyleInput(storage.rephraseStyle);
@@ -147,11 +158,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('saveStyleBtn').addEventListener('click', () => {
     const style = document.getElementById('rephraseStyle').value;
+    const language = languageSelect.value;
     const customStyleText = document.getElementById('customStyle').value.trim();
-    const dataToSave = { rephraseStyle: style };
+
+    const dataToSave = {
+      rephraseStyle: style,
+      selectedLanguage: language
+    };
+
     if (style === 'custom' && customStyleText) {
       dataToSave.customStyle = customStyleText;
     }
+
     chrome.storage.local.set(dataToSave, () => {
       const savedMessage = document.getElementById('savedMessage');
       savedMessage.innerText = translations[currentLocale].applyStyleSaved;

@@ -272,7 +272,7 @@ function handleRephraseClick(input) {
 
   if (!userText) return;
 
-  chrome.storage.local.get(['apiKey', 'rephraseStyle', 'customStyle', 'userLocale'], (result) => {
+  chrome.storage.local.get(['apiKey', 'rephraseStyle', 'customStyle', 'userLocale', 'selectedLanguage'], (result) => {
     const apiKey = result.apiKey;
     if (!apiKey) {
       alert('API key not found. Please configure it.');
@@ -281,6 +281,7 @@ function handleRephraseClick(input) {
 
     const rephraseStyle = result.rephraseStyle || 'original';
     const locale = result.userLocale || 'en';
+    const selectedLanguage = result.selectedLanguage || 'auto';
 
     const prompts = {
       en: (styleLocalized, text) => [
@@ -411,20 +412,25 @@ function handleRephraseClick(input) {
       // Devanagari script (Hindi)
       if (/[\u0900-\u097f]/.test(text)) return 'hi';
 
-      // Spanish common words
-      if (/\b(el|la|los|las|de|y|que|un|una|para|con|por|es|en)\b/i.test(text)) return 'es';
+      // Portuguese specific - check first (has unique "ão", "nh", "lh")
+      if (/\b(não|também|com|são|ou|mais|até|muito|quando|onde)\b/i.test(text) ||
+          /ão|nh|lh|ç/.test(text)) return 'pt';
 
-      // Portuguese specific words (different from Spanish)
-      if (/\b(o|a|os|as|com|não|para|do|da|em|por|um|uma)\b/i.test(text)) return 'pt';
+      // Italian specific - check before Spanish (has unique articles and verbs)
+      if (/\b(gli|della|dello|nell|sono|hanno|può|così|anche|dove|quando)\b/i.test(text) ||
+          /\b(il|lo)\s/i.test(text)) return 'it';
 
-      // French specific words
-      if (/\b(le|la|les|de|et|un|une|pour|dans|avec|ce|est)\b/i.test(text)) return 'fr';
+      // Spanish specific - after Italian check
+      if (/\b(los|las|está|están|pero|como|todo|hay|muy|siempre)\b/i.test(text) ||
+          /¿|¡/.test(text)) return 'es';
 
-      // German specific words
-      if (/\b(der|die|das|und|ist|für|mit|auf|nicht|von|dem)\b/i.test(text)) return 'de';
+      // French specific (unique articles and contractions)
+      if (/\b(le|les|du|au|aux|ce|ces|cette|des|dans|avec|vous|nous)\b/i.test(text) ||
+          /[àâäéèêëïîôùûç]/.test(text)) return 'fr';
 
-      // Italian specific words
-      if (/\b(il|lo|la|i|gli|le|di|e|che|per|un|una|con)\b/i.test(text)) return 'it';
+      // German specific (capitalized nouns, umlauts, unique words)
+      if (/\b(der|die|das|und|nicht|auch|aber|oder|sein|werden)\b/i.test(text) ||
+          /[äöüß]/.test(text)) return 'de';
 
       // English (fallback for Latin script)
       if (/^[a-zA-Z\s.,!?'"-]+$/.test(text)) return 'en';
@@ -432,8 +438,14 @@ function handleRephraseClick(input) {
       return null;
     }
 
-    const detectedLang = detectLanguage(userText);
-    const promptLocale = detectedLang || locale;
+    // Use manually selected language if set, otherwise auto-detect
+    let promptLocale;
+    if (selectedLanguage && selectedLanguage !== 'auto') {
+      promptLocale = selectedLanguage;
+    } else {
+      const detectedLang = detectLanguage(userText);
+      promptLocale = detectedLang || locale;
+    }
 
     const styleTranslations = {
       original: {
