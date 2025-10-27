@@ -62,15 +62,13 @@ const shimmerStyle = document.createElement('style');
 shimmerStyle.textContent = `
 .gpt-loading {
   position: relative;
-  color: transparent !important;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: 4px;
+  opacity: 0.6 !important;
+  pointer-events: none;
+  animation: pulse 1.4s infinite ease-in-out;
 }
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.4; }
 }
 .gpt-button-wrapper {
   position: absolute;
@@ -236,18 +234,28 @@ function handleRephraseClick(input) {
   let userText = '', selection = '', fullText = '', range = null;
   let selectionStart = 0, selectionEnd = 0;
   let hasSelection = false; // Track if user selected specific text
+  let rangeBookmark = null; // Store range info for later restoration
 
   // Extract text based on input type
   if (input.isContentEditable) {
     const sel = window.getSelection();
     if (sel && sel.rangeCount > 0 && sel.toString().trim()) {
       try {
-        range = sel.getRangeAt(0).cloneRange();
+        range = sel.getRangeAt(0);
+
+        // Store range information for later restoration
+        rangeBookmark = {
+          startContainer: range.startContainer,
+          startOffset: range.startOffset,
+          endContainer: range.endContainer,
+          endOffset: range.endOffset
+        };
+
         selection = sel.toString();
         userText = selection.trim();
         hasSelection = true;
       } catch (e) {
-        console.error('Error cloning range:', e);
+        console.error('Error getting range:', e);
         userText = input.innerText.trim();
         hasSelection = false;
       }
@@ -532,35 +540,116 @@ function handleRephraseClick(input) {
         // Insert rephrased text
         if (input.isContentEditable) {
           input.focus();
-          if (hasSelection && range && document.body.contains(range.startContainer)) {
+          if (hasSelection && rangeBookmark) {
             // User selected specific text, replace only that selection
             try {
-              const sel = window.getSelection();
-              sel.removeAllRanges();
-              sel.addRange(range);
-              // Use execCommand for better compatibility
-              if (document.execCommand) {
-                document.execCommand('insertText', false, newText);
-              } else {
-                // Fallback: delete and insert
-                range.deleteContents();
-                const textNode = document.createTextNode(newText);
-                range.insertNode(textNode);
+              // Validate that the bookmark containers are still in the document
+              const startValid = document.contains(rangeBookmark.startContainer);
+              const endValid = document.contains(rangeBookmark.endContainer);
 
-                // Move cursor to end of inserted text
-                range.setStartAfter(textNode);
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
+              if (!startValid || !endValid) {
+                throw new Error('Range bookmark containers are no longer in document');
               }
 
-              // Trigger events
+              // Restore the original selection using the stored bookmark
+              const newRange = document.createRange();
+              newRange.setStart(rangeBookmark.startContainer, rangeBookmark.startOffset);
+              newRange.setEnd(rangeBookmark.endContainer, rangeBookmark.endOffset);
+
+              // Delete the selected content
+              newRange.deleteContents();
+
+              // Create text node with new content
+              const textNode = document.createTextNode(newText);
+
+              // Insert the new text at the selection
+              newRange.insertNode(textNode);
+
+              // Move cursor to end of inserted text
+              newRange.setStartAfter(textNode);
+              newRange.collapse(true);
+
+              const sel = window.getSelection();
+              sel.removeAllRanges();
+              sel.addRange(newRange);
+
+              // Trigger events for framework detection
               input.dispatchEvent(new Event('input', { bubbles: true }));
               input.dispatchEvent(new Event('change', { bubbles: true }));
+              input.blur();
+              input.focus();
             } catch (e) {
-              console.error('Error inserting text with range:', e);
-              // Last resort fallback
-              input.textContent = newText;
+              console.error('Error replacing selected text with range:', e);
+              console.log('Selection text:', selection);
+              console.log('Full text length:', fullText.length);
+
+              // Fallback: Use execCommand which preserves HTML structure better
+              try {
+                input.focus();
+
+                // Try to find the text in the current content
+                const currentText = input.innerText || input.textContent;
+                const selectionIndex = currentText.indexOf(selection);
+
+                if (selectionIndex !== -1) {
+                  // Select the text manually
+                  const sel = window.getSelection();
+                  sel.removeAllRanges();
+
+                  // Walk through nodes to find and select the text
+                  let found = false;
+                  let charCount = 0;
+
+                  function selectTextInNode(node) {
+                    if (found) return;
+
+                    if (node.nodeType === Node.TEXT_NODE) {
+                      const nodeLength = node.textContent.length;
+                      if (charCount + nodeLength > selectionIndex) {
+                        // Selection starts in this node
+                        const startOffset = selectionIndex - charCount;
+                        const endOffset = Math.min(startOffset + selection.length, nodeLength);
+
+                        const range = document.createRange();
+                        range.setStart(node, startOffset);
+                        range.setEnd(node, endOffset);
+                        sel.addRange(range);
+                        found = true;
+                        return;
+                      }
+                      charCount += nodeLength;
+                    } else {
+                      for (let child of node.childNodes) {
+                        selectTextInNode(child);
+                        if (found) return;
+                      }
+                    }
+                  }
+
+                  selectTextInNode(input);
+
+                  if (found) {
+                    // Now replace the selection using execCommand or insertText
+                    if (document.execCommand) {
+                      document.execCommand('insertText', false, newText);
+                    } else {
+                      // Modern approach
+                      const range = sel.getRangeAt(0);
+                      range.deleteContents();
+                      range.insertNode(document.createTextNode(newText));
+                    }
+
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                  } else {
+                    console.error('Could not find and select the text');
+                  }
+                } else {
+                  console.error('Could not find selection in current text');
+                }
+              } catch (fallbackErr) {
+                console.error('Fallback also failed:', fallbackErr);
+              }
             }
           } else {
             // No selection, replace entire content
