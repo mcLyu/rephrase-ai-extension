@@ -5,7 +5,7 @@
       "service_worker":"background.js"
    },
    "description":"__MSG_rephraseTitle__",
-   "version":"2.2",
+   "version":"2.3",
    "default_locale":"en",
    "permissions":[
       "storage"
@@ -25,7 +25,8 @@
       {
          "resources":[
             "rephrase-icon.png",
-            "spinner-icon.png"
+            "spinner-icon.png",
+            "undo-icon.png"
          ],
          "matches":[
             "<all_urls>"

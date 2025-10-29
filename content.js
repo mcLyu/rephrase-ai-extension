@@ -115,7 +115,7 @@ function isValidInput(input) {
 }
 
 // Update button position (for dynamic layouts)
-function updateButtonPosition(input, wrapper) {
+function updateButtonPosition(input, wrapper, undoWrapper = null) {
   if (!input || !wrapper || !document.body.contains(input)) {
     return;
   }
@@ -124,15 +124,42 @@ function updateButtonPosition(input, wrapper) {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
+  // Check text length - hide button if less than 10 characters
+  const textLength = input.isContentEditable
+    ? (input.innerText || '').length
+    : (input.value || '').length;
+
+  if (textLength < 10) {
+    wrapper.style.display = 'none';
+    if (undoWrapper) undoWrapper.style.display = 'none';
+    return;
+  } else {
+    wrapper.style.display = 'block';
+  }
+
   wrapper.style.top = `${rect.top + scrollTop + 6}px`;
   wrapper.style.left = `${rect.left + scrollLeft + rect.width - 26}px`;
+
+  // Position undo button to the left of rephrase button
+  if (undoWrapper) {
+    undoWrapper.style.top = `${rect.top + scrollTop + 6}px`;
+    undoWrapper.style.left = `${rect.left + scrollLeft + rect.width - 56}px`; // 30px to the left
+  }
 }
 
 // Cleanup button and metadata when input is removed
 function cleanupInput(input) {
+  const metadata = inputMetadata.get(input);
+
+  // Remove rephrase button wrapper
   const wrapper = buttonReferences.get(input);
   if (wrapper && wrapper.parentNode) {
     wrapper.parentNode.removeChild(wrapper);
+  }
+
+  // Remove undo button wrapper if it exists
+  if (metadata && metadata.undoWrapper && metadata.undoWrapper.parentNode) {
+    metadata.undoWrapper.parentNode.removeChild(metadata.undoWrapper);
   }
 
   // Abort any active request
@@ -140,6 +167,14 @@ function cleanupInput(input) {
   if (controller) {
     controller.abort();
     activeRequests.delete(input);
+  }
+
+  // Remove event listeners if they exist
+  if (metadata && metadata.cleanup) {
+    metadata.cleanup();
+  }
+  if (metadata && metadata.inputListener) {
+    input.removeEventListener('input', metadata.inputListener);
   }
 
   buttonReferences.delete(input);
@@ -182,39 +217,149 @@ function injectButtonIntoInput(input) {
     background: '#fff',
     boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
     objectFit: 'contain',
-    transition: 'transform 0.2s ease',
-    display: 'block'
+    transition: 'transform 0.2s ease, opacity 0.2s ease',
+    display: 'block',
+    opacity: '0.7'
   });
 
-  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.2)'; });
-  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; });
+  btn.addEventListener('mouseenter', () => {
+    btn.style.transform = 'scale(1.2)';
+    btn.style.opacity = '1';
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = 'scale(1)';
+    btn.style.opacity = '0.7';
+  });
 
   wrapper.appendChild(btn);
   document.body.appendChild(wrapper);
+
+  // Create undo button wrapper
+  const undoWrapper = document.createElement('div');
+  undoWrapper.className = 'gpt-button-wrapper';
+  undoWrapper.style.display = 'none'; // Hidden by default
+
+  const undoBtn = document.createElement('img');
+  try {
+    undoBtn.src = chrome.runtime.getURL('undo-icon.png');
+    undoBtn.title = 'Undo';
+  } catch (e) {
+    console.error('Extension context invalidated, skipping undo button injection');
+  }
+
+  undoBtn.className = 'gpt-undo-btn';
+  Object.assign(undoBtn.style, {
+    width: '20px',
+    height: '20px',
+    cursor: 'pointer',
+    border: 'none',
+    borderRadius: '4px',
+    background: '#fff',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+    objectFit: 'contain',
+    transition: 'transform 0.2s ease, opacity 0.2s ease',
+    display: 'block',
+    opacity: '0.7'
+  });
+
+  undoBtn.addEventListener('mouseenter', () => {
+    undoBtn.style.transform = 'scale(1.2)';
+    undoBtn.style.opacity = '1';
+  });
+  undoBtn.addEventListener('mouseleave', () => {
+    undoBtn.style.transform = 'scale(1)';
+    undoBtn.style.opacity = '0.7';
+  });
+
+  undoWrapper.appendChild(undoBtn);
+  document.body.appendChild(undoWrapper);
 
   // Store references
   buttonReferences.set(input, wrapper);
   inputMetadata.set(input, {
     element: input,
     wrapper: wrapper,
-    button: btn
+    button: btn,
+    undoWrapper: undoWrapper,
+    undoButton: undoBtn,
+    originalText: null, // Will store text before rephrasing
+    hasBeenRephrased: false,
+    isRephrasing: false // Flag to prevent hiding undo during programmatic text change
   });
 
-  // Position the button
-  updateButtonPosition(input, wrapper);
+  // Position the buttons
+  updateButtonPosition(input, wrapper, undoWrapper);
 
   // Update position on scroll/resize
-  const updatePosition = debounce(() => updateButtonPosition(input, wrapper), 100);
+  const updatePosition = debounce(() => updateButtonPosition(input, wrapper, undoWrapper), 100);
   window.addEventListener('scroll', updatePosition, true);
   window.addEventListener('resize', updatePosition);
+
+  // Monitor text changes to hide/show button and hide undo on typing
+  const inputListener = debounce(() => {
+    const metadata = inputMetadata.get(input);
+    if (!metadata) return;
+
+    // Don't hide undo button if we're in the middle of rephrasing
+    if (metadata.isRephrasing) return;
+
+    // Update button visibility based on text length
+    updateButtonPosition(input, wrapper, undoWrapper);
+
+    // Hide undo button when user starts typing after rephrasing
+    if (metadata.hasBeenRephrased && undoWrapper.style.display === 'block') {
+      undoWrapper.style.display = 'none';
+      metadata.hasBeenRephrased = false;
+      metadata.originalText = null;
+    }
+  }, 300);
+
+  input.addEventListener('input', inputListener);
 
   // Store cleanup handlers
   inputMetadata.get(input).cleanup = () => {
     window.removeEventListener('scroll', updatePosition, true);
     window.removeEventListener('resize', updatePosition);
   };
+  inputMetadata.get(input).inputListener = inputListener;
 
+  // Handle rephrase click
   btn.addEventListener('click', () => handleRephraseClick(input));
+
+  // Handle undo click
+  undoBtn.addEventListener('click', () => handleUndoClick(input));
+}
+
+// Handle undo click to restore original text
+function handleUndoClick(input) {
+  const metadata = inputMetadata.get(input);
+  if (!metadata || !metadata.originalText) {
+    console.log('No original text to restore');
+    return;
+  }
+
+  // Restore the original text
+  if (input.isContentEditable) {
+    input.innerHTML = metadata.originalText;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  } else {
+    input.value = metadata.originalText;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  // Hide undo button after restoring
+  if (metadata.undoWrapper) {
+    metadata.undoWrapper.style.display = 'none';
+  }
+
+  // Clear the stored state
+  metadata.originalText = null;
+  metadata.hasBeenRephrased = false;
+
+  // Trigger focus to ensure UI updates
+  input.focus();
 }
 
 // Main rephrase handler with deduplication and retry logic
@@ -279,6 +424,16 @@ function handleRephraseClick(input) {
   }
 
   if (!userText) return;
+
+  // Store original text for undo functionality
+  const metadata = inputMetadata.get(input);
+  if (metadata) {
+    if (input.isContentEditable) {
+      metadata.originalText = input.innerHTML; // Store HTML to preserve formatting
+    } else {
+      metadata.originalText = input.value;
+    }
+  }
 
   chrome.storage.local.get(['apiKey', 'rephraseStyle', 'customStyle', 'userLocale', 'selectedLanguage'], (result) => {
     const apiKey = result.apiKey;
@@ -537,6 +692,12 @@ function handleRephraseClick(input) {
 
         if (!newText) return;
 
+        // Set flag to prevent inputListener from hiding undo button during text replacement
+        const metadata = inputMetadata.get(input);
+        if (metadata) {
+          metadata.isRephrasing = true;
+        }
+
         // Insert rephrased text
         if (input.isContentEditable) {
           input.focus();
@@ -691,6 +852,21 @@ function handleRephraseClick(input) {
           // Trigger input event for frameworks
           input.dispatchEvent(new Event('input', { bubbles: true }));
         }
+
+        // Show undo button after successful rephrasing
+        if (metadata && metadata.undoWrapper && metadata.originalText) {
+          metadata.hasBeenRephrased = true;
+          metadata.undoWrapper.style.display = 'block';
+          // Update position to ensure it's correctly placed
+          updateButtonPosition(input, metadata.wrapper, metadata.undoWrapper);
+
+          // Clear the rephrasing flag after a short delay to ensure input events have settled
+          setTimeout(() => {
+            if (metadata) {
+              metadata.isRephrasing = false;
+            }
+          }, 500);
+        }
       })
       .catch(err => {
         // Check if input still exists
@@ -702,6 +878,12 @@ function handleRephraseClick(input) {
         input.classList.remove('gpt-loading');
         if (!input.isContentEditable && !wasReadonly) {
           input.removeAttribute('readonly');
+        }
+
+        // Clear rephrasing flag on error
+        const metadata = inputMetadata.get(input);
+        if (metadata) {
+          metadata.isRephrasing = false;
         }
 
         console.error('Rephrase error:', err);
